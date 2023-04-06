@@ -1,6 +1,6 @@
 export default class UserPrompts {
   static welcomePrompt: string = "Hello! We would love to help you schedule a backup for your GitHub repository.";
-  static gitHubRepoUrlPrompt: string = 'Sure!, what is the URL of the GitHub Repo you want to backup?';
+  static gitHubRepoUrlPrompt: string = 'What is the URL of the GitHub Repo you want to backup?';
   static invalidGitHubUrl: string = 'Not a valid GitHub URL, example of a valid GitHub Repo URL: https://github.com/jeetmehta13/test-repo';
   static pickFrequencyPrompt: string = "How frequently should this reposiotry be backed up? (eg. 5h, 30m)"
   static invalidFrequencyError: string = "Sorry, this is not the correct format. Input should be either xm or xh where x represents the number of minutes or number of hours respectively"

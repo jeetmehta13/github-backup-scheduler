@@ -21,7 +21,7 @@ export class BackupHandler {
         }
       });
       await new Promise((resolve, reject) => {
-        const fileStream = fs.createWriteStream(backupName ? `../../${backupName}` : '../../backup.zip');
+        const fileStream = fs.createWriteStream(backupName ? `./backups/${backupName}` : './backups/backup.zip');
         repoZip.body?.pipe(fileStream);
         repoZip.body?.on("error", (err) => {
           console.log(err);
