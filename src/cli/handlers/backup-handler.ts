@@ -3,6 +3,7 @@ import { parseFrequencyString, parseRepositoryUrl } from "../helper/parser";
 import inquirer from 'inquirer';
 import { validateGitHubRepoUrl } from "../helper/validator";
 import fetch from "node-fetch";
+import fs from "fs";
 
 export class CliBackupHandler {
   private url: string = `http://localhost:3000`;
@@ -41,6 +42,28 @@ export class CliBackupHandler {
     }  
   }
 
+  async fetchBackup(): Promise<string> {
+    const res: any = await fetch(`${this.url}/retrieve`);
+    if(res.status != 200) {
+      return (await res.json()).message;
+    }
+    const filename = res.headers.get('Content-Disposition').split('filename=')[1].replace(/['"]+/g, '');
+    const isDownloaded = await new Promise((resolve, reject) => {
+      const fileStream = fs.createWriteStream(`./${filename}`);
+      res.body?.pipe(fileStream);
+      res.body?.on("error", (err: any) => {
+        reject(err);
+      })
+      fileStream.on("finish", function() {
+        resolve("finished");
+      });    
+    });
+    if(isDownloaded instanceof Error) {
+      return UserPrompts.fileDownloadFailedPrompt;
+    }
+    return UserPrompts.fileDownloadedPrompt(filename);
+  }
+
   async jobExists(): Promise<boolean | undefined> {
     try {
       const res: any = await fetch(`${this.url}/exists`);
@@ -50,6 +73,19 @@ export class CliBackupHandler {
       return undefined;
     }
   }
+
+  async jobExistsPrompt(): Promise<number> {
+    const jobExistsInput = await inquirer.prompt([
+      {
+        name: "jobExistsInput",
+        message: UserPrompts.jobExistsPrompt,
+        choices: UserPrompts.jobExistsChoices,
+        type: "list"
+      }
+    ]);
+
+    return UserPrompts.jobExistsChoices.indexOf(jobExistsInput["jobExistsInput"]);
+  } 
 
   async deleteJobPrompt(): Promise<boolean> {
     const deleteJobInput = await inquirer.prompt([

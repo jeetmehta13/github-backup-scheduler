@@ -10,7 +10,7 @@ export class BackupHandler {
     this.zipLink = zipLink;
   }
   
-  private async createBackup(backupName?: string) {
+  async createBackup(backupName?: string) {
     try {
       console.log('Cron job running');
       const repoZip = await fetch(this.zipLink, {
@@ -20,11 +20,17 @@ export class BackupHandler {
           'X-GitHub-Api-Version': '2022-11-28'
         }
       });
+      if(repoZip.status < 200 || repoZip.status >= 400)
+      {
+        const message = (await repoZip.json()).message;
+        console.error(`Could not create backup. Reason: ${message}`);
+        return;
+      }
       await new Promise((resolve, reject) => {
-        const fileStream = fs.createWriteStream(backupName ? `./backups/${backupName}` : './backups/backup.zip');
+        const fileStream = fs.createWriteStream(`${backupName}`);
         repoZip.body?.pipe(fileStream);
         repoZip.body?.on("error", (err) => {
-          console.log(err);
+          console.error(`Cron Job: File Downlaod failed. [ERROR]: ${err}`);
           reject(err);
         })
         fileStream.on("finish", function() {
@@ -34,9 +40,5 @@ export class BackupHandler {
     } catch (error: any) {
       console.log(`ERROR! Cron job failed. Reason: ${error.message}`)
     }
-  }
-
-  async startBackup() {
-    await this.createBackup();
   }
 }

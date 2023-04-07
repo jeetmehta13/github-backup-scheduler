@@ -2,8 +2,6 @@ version: '3'
 services:
   backup-scheduler-backend:
     image: backup-scheduler-backend:latest
-    volumes:
-      - ./backups/:/app/backups
     build: 
       context: .
       dockerfile: Dockerfile
