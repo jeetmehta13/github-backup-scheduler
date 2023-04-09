@@ -13,6 +13,8 @@ To start the backend server:
 To install the CLI:
 
 ```
+  npm i
+  npx tsc
   npm i -g .
 ```
 
